@@ -26,7 +26,7 @@ public interface UserRepo extends JpaRepository<User,Integer> {
     Optional<User> existsByUsername(String username);
 
     @Query("FROM User WHERE username = :username")
-    User findByUsernameAndPassword(String username);
+    User findByUsername(String username);
 
     @Modifying
     @Query("UPDATE User SET verified = true WHERE email = :email")

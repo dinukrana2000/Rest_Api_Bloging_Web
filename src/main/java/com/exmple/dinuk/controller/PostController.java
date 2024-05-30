@@ -2,7 +2,6 @@ package com.exmple.dinuk.controller;
 
 import com.exmple.dinuk.dto.PostDTO;
 import com.exmple.dinuk.service.PostService;
-import com.exmple.dinuk.service.PostServiceInterface;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,7 @@ import java.util.List;
 @CrossOrigin
 public class PostController {
     @Autowired
-    private PostServiceInterface postService;
+    private PostService postService;
     @PostMapping("/create")
     public PostDTO createPost(@Valid @RequestBody PostDTO postDTO){
 
