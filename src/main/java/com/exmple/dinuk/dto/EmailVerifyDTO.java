@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class EmailVerifyDTO {
-    @Min(value = 1, message = "OTP is mandatory")
+
+    @Min(value = 1, message = "{emailverify.otp.mandatory}")
     private int otp;
 
-    @NotBlank(message = "Email is mandatory")
+    @NotBlank(message = "{emailverify.email.mandatory}")
     private String email;
 
     private String message;

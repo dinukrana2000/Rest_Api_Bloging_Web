@@ -1,13 +1,11 @@
 package com.exmple.dinuk.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -21,15 +19,17 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String username;
-    private Date date;
+    private Timestamp date;
     private String title;
     private String content;
     private String author;
 
-    public Date getDate() {
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(this.date.toInstant(), ZoneId.systemDefault());
-        ZonedDateTime adjustedTime = zonedDateTime.minusHours(5).minusMinutes(30);
-        return Date.from(adjustedTime.toInstant());
+
+
+    @PrePersist
+    protected void onCreate() {
+        ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Colombo"));
+        date = Timestamp.from(zdt.toInstant());
     }
 
 }

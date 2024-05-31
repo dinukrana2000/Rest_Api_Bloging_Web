@@ -1,12 +1,13 @@
 package com.exmple.dinuk.dto;
 
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -15,29 +16,32 @@ import java.util.Date;
 @AllArgsConstructor
 @Data
 public class PostDTO {
-    @NotBlank(message = "Username cannot be blank")
+
+    @NotBlank(message = "{post.username.mandatory}")
     private String username;
 
+    private ZonedDateTime date;
 
-    private Date date=new Date();
-
-    @NotBlank(message = "Title cannot be blank")
-    @Size(min=1 ,max=100, message = "Title must be between 1 and 100 characters")
+    @NotBlank(message = "{post.title.mandatory}")
+    @Size(min = 1, max = 100, message = "{post.title.size}")
     private String title;
 
-    @NotBlank(message = "Content cannot be blank")
-    @Size(min=1 ,max=200, message = "content must be between 1 and 200 characters")
+    @NotBlank(message = "{post.content.mandatory}")
+    @Size(min = 1, max = 200, message = "{post.content.size}")
     private String content;
 
-    @NotBlank(message = "Author cannot be blank")
-    @Size(min=1 ,max=50, message = "author must be between 1 and 50 characters")
+    @NotBlank(message = "{post.author.mandatory}")
+    @Size(min = 1, max = 50, message = "{post.author.size}")
     private String author;
 
     private String message;
 
-    public Date getDate() {
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(this.date.toInstant(), ZoneId.systemDefault());
-        ZonedDateTime adjustedTime = zonedDateTime.plusHours(5).plusMinutes(30);
-        return Date.from(adjustedTime.toInstant());
+    @PrePersist
+    protected void onCreate() {
+        date = ZonedDateTime.now(ZoneId.of("Asia/Colombo"));
     }
+
+
+
+
 }

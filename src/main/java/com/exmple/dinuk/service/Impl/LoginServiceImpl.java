@@ -1,9 +1,10 @@
-package com.exmple.dinuk.service;
+package com.exmple.dinuk.service.Impl;
 
 import com.exmple.dinuk.dto.LoginDTO;
 import com.exmple.dinuk.entity.User;
 import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.UserRepo;
+import com.exmple.dinuk.service.LoginService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 
 @Service
 @Transactional
-public class LoginServiceImpl implements LoginService{
+public class LoginServiceImpl implements LoginService {
     @Autowired // injected the repository into service because to depenceny injection
     private UserRepo userRepo;
     @Autowired
@@ -25,12 +26,12 @@ public class LoginServiceImpl implements LoginService{
     private JwtTokenProvider jwtTokenProvider;
 
     public boolean UserExist(String username){
-        return userRepo.existsByUsername(username).isPresent();
+        return userRepo.findByUsername(username).isPresent();
     }
 
     public LoginDTO loginto(LoginDTO loginDTO) {
         if(UserExist(loginDTO.getUsername())){
-            User user = userRepo.findByUsername(loginDTO.getUsername());
+            User user = userRepo.findByUsername2(loginDTO.getUsername());
             if(user != null && passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())){
                 if(!user.isVerified()){
                     throw new CustomExceptions.UserNotVerifiedException("User is not verified Please verify email first");

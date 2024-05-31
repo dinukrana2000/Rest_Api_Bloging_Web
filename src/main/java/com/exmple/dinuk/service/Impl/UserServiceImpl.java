@@ -1,9 +1,10 @@
-package com.exmple.dinuk.service;
+package com.exmple.dinuk.service.Impl;
 import com.exmple.dinuk.dto.EmailVerifyDTO;
 import com.exmple.dinuk.entity.User;
 import com.exmple.dinuk.dto.UserDTO;
 import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.UserRepo;
+import com.exmple.dinuk.service.UserService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +86,7 @@ public class UserServiceImpl implements UserService {
                 throw new CustomExceptions.UserNotVerifiedException("Email already verified");
             }
             else if(user.getOtp()==emailVerifyDTO.getOtp()){
-                userRepo.verifyEmail(emailVerifyDTO.getEmail());
+                userRepo.verifyByEmail(emailVerifyDTO.getEmail());
                 emailVerifyDTO.setMessage("Email verified successfully");
                 emailVerifyDTO.setOtp(0);
             }
@@ -101,17 +102,17 @@ public class UserServiceImpl implements UserService {
 
 
     public boolean UserExist(String username){
-        return userRepo.existsByUsername(username).isPresent();
+        return userRepo.findByUsername(username).isPresent();
     }
 
     public boolean CheckUserExist(String username,String email) {
-        List<User> users= userRepo.existsByUsernameOrEmail(username,email);
+        List<User> users= userRepo.findByUsernameOrEmail(username,email);
         return !users.isEmpty();
     }
 
 
     @Scheduled(fixedRate = 60000)
     public void deleteUnverifiedUsers() {
-        userRepo.deleteUnverifiedUsersOlderThanOneMinute(LocalDateTime.now().minusMinutes(1));
+        userRepo.deleteByCreatedDateBeforeAndVerifiedFalse(LocalDateTime.now().minusMinutes(1));
     }
 }

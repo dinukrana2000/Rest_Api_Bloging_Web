@@ -11,17 +11,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class LoginDTO {
-    @NotBlank(message = "Username is empty")
-    @NotEmpty(message = "Username is empty")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+
+    @NotBlank(message = "{login.username.mandatory}")
+    @NotEmpty(message = "{login.username.mandatory}")
+    @Size(min = 3, max = 50, message = "{login.username.size}")
     private String username;
 
-    @NotBlank(message = "Password is empty")
-    @NotEmpty(message = "Password is empty")
-    @Size(min = 6, message = "Password must be at least 6 characters long")
+    @NotBlank(message = "{login.password.mandatory}")
+    @NotEmpty(message = "{login.password.mandatory}")
+    @Size(min = 6, message = "{login.password.size}")
     private String password;
 
     private String message;
     private String token;
-
 }
