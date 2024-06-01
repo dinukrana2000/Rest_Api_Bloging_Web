@@ -35,6 +35,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/v1/user/signup").permitAll()
                         .requestMatchers("/api/v1/user/login").permitAll()
                         .requestMatchers("/api/v1/user/verifyEmail").permitAll()
+                        .requestMatchers("/api/v1/send/WhatsApp").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
