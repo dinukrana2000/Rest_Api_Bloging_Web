@@ -96,4 +96,17 @@ public class PostServiceImpl implements PostService {
             return postDTO;
         }
     }
+
+    public PostDTO getPostById(int id, String username) {
+        if (!PostExist(id)) {
+            throw new CustomExceptions.UserDoesNotExistException("Post does not exist");
+        }
+        else {
+            Post post = postRepo.findPostById1(id,username).get();
+            PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+            ZonedDateTime zdt = post.getDate().toInstant().atZone(ZoneId.of("Asia/Colombo"));
+            postDTO.setDate(zdt);
+            return postDTO;
+        }
+    }
 }

@@ -25,6 +25,7 @@ public class User {
     private String password;
     boolean verified = false;
     int otp;
+    private String resetPasswordToken="";
     private LocalDateTime createdDate = LocalDateTime.now();
-
+    private LocalDateTime resetPasswordExpiry;
 }

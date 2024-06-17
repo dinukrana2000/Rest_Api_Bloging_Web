@@ -23,4 +23,5 @@ public class SignupController {
     public EmailVerifyDTO verifyEmail(@Valid @RequestBody EmailVerifyDTO emailVerifyDTO){
         return userService.verifyEmail(emailVerifyDTO);
     }
+
 }

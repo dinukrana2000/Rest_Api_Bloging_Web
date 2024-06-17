@@ -30,6 +30,11 @@ public class PostController {
         return postService.getPostByUsername(username);
     }
 
+    @GetMapping(value = "/getByid/{id}/{username}")
+    public PostDTO getPostById(@PathVariable int id,@PathVariable String username){
+        return postService.getPostById(id,username);
+    }
+
     @PutMapping(value = "/updateByidAndusername/{id}/{username}")
     public PostDTO updatePost(@PathVariable int id,@PathVariable String username,@RequestBody PostDTO postDTO){
         return postService.updatePost(id,username,postDTO);

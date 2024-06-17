@@ -17,4 +17,9 @@ public class LoginController {
 
         return loginService.loginto(loginDTO);
     }
+
+    @GetMapping(value = "/getemail/{username}")
+    public String getEmail(@PathVariable String username){
+        return loginService.getEmail(username);
+    }
 }

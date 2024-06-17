@@ -36,4 +36,15 @@ public interface UserRepo extends JpaRepository<User,Integer> {
 
     @Modifying
     @Transactional
-    void deleteByCreatedDateBeforeAndVerifiedFalse(LocalDateTime oneMinuteAgo);}
+    void deleteByCreatedDateBeforeAndVerifiedFalse(LocalDateTime oneMinuteAgo);
+
+    @Modifying
+    @Query("UPDATE User u SET u.resetPasswordToken = ?1, u.resetPasswordExpiry = ?2 WHERE u.email = ?3")
+    @Transactional
+    void updateResetPasswordToken(String token, LocalDateTime expiry, String email);
+
+    @Modifying
+    @Query("UPDATE User u SET u.password = ?1 WHERE u.email = ?2")
+    @Transactional
+    void ResetPassword(String password, String email);
+}

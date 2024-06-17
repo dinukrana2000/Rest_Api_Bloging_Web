@@ -26,9 +26,15 @@ public interface PostRepo extends JpaRepository<Post,Integer> {
 
     Optional<Post> findPostById(int id);
 
+    @Query(value = "SELECT * FROM Post WHERE id=:id AND username=:username", nativeQuery = true)
+
+    Optional<Post> findPostById1(int id, String username);
+
 
     @Modifying
     @Transactional
     void deletePostById(int id);
+
+
 
 }

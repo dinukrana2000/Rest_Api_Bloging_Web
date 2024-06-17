@@ -51,4 +51,15 @@ public class LoginServiceImpl implements LoginService {
         }
         return loginDTO;
     }
+
+    public String getEmail(String username){
+           User user = userRepo.findByUsername2(username);
+            if(user != null){
+                return user.getEmail();
+            }
+            else{
+                throw new CustomExceptions.UserDoesNotExistException("User does not exist");
+            }
+
+    }
 }

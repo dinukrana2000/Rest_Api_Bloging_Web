@@ -10,4 +10,5 @@ public interface PostService {
     List<PostDTO> getPostByUsername(String username);
     PostDTO updatePost(int id, String username, PostDTO PostDTO);
     PostDTO deletePost(int id);
+    PostDTO getPostById(int id, String username);
 }

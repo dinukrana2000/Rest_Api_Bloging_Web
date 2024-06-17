@@ -16,6 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Data
 public class PostDTO {
+    private int id;
 
     @NotBlank(message = "{post.username.mandatory}")
     private String username;

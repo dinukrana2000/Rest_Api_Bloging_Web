@@ -28,8 +28,8 @@ public class WhatsAppService {
             Twilio.init(config.getAccountSid(), config.getAuthToken());
 
             Message.creator(
-                            new PhoneNumber("whatsapp:" + recipient),
-                            new PhoneNumber("whatsapp:" + config.getBusinessNumber()),
+                            new PhoneNumber(  recipient),
+                            new PhoneNumber( config.getBusinessNumber()),
                             message)
                     .create();
 

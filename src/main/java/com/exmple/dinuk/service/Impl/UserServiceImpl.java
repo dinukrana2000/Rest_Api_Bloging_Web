@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
             throw new CustomExceptions.PasswordMismatchException("Password and confirm password do not match");
         }
         else {
-            String encodedPassword = passwordEncoder.encode(userDTO.getPassword()); // hash the password before saving
+            String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
             Random random = new Random();
             int otp=100000+ random.nextInt(900000);
             userRepo.Signup(user.getId(), userDTO.getUsername(), userDTO.getEmail(), userDTO.getAddress(), userDTO.getNumber(), encodedPassword, user.isVerified(),otp);
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
             message.setSubject("Hello User");
             message.setTo(email);
             message.setText("Please use this OTP to verify your email:"+" "+otp);
-            message.setFrom("75a7e2001@smtp-brevo.com");
+            message.setFrom("dinukrana@gmail.com");
 
 
             javaMailSender.send(message);
