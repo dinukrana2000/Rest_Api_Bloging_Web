@@ -23,4 +23,6 @@ public class AppConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
     }
+
+
 }

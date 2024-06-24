@@ -9,9 +9,9 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.sql.Timestamp;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +29,10 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private NotificationImpl notificationService;
+
     public PostDTO createPost(PostDTO postDTO) {
         if (!userService.UserExist(postDTO.getUsername())) {
             throw new CustomExceptions.UserDoesNotExistException("User does not exist");
@@ -38,7 +42,9 @@ public class PostServiceImpl implements PostService {
             postRepo.save(post);
             postDTO.setDate(ZonedDateTime.now(ZoneId.of("Asia/Colombo")));
             postDTO.setMessage("Post created successfully");
+            notificationService.notifyNewPost("New Post Created by " + postDTO.getUsername()+" " + "Author by" +" "+ postDTO.getAuthor()+" "+"At"+" "+ postDTO.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             return postDTO;
+
         }
     }
 
@@ -109,4 +115,6 @@ public class PostServiceImpl implements PostService {
             return postDTO;
         }
     }
+
+
 }

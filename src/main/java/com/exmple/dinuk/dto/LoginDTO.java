@@ -24,4 +24,7 @@ public class LoginDTO {
 
     private String message;
     private String token;
+    private String refreshToken;
+
+
 }

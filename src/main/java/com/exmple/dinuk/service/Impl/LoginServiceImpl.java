@@ -1,6 +1,7 @@
 package com.exmple.dinuk.service.Impl;
 
 import com.exmple.dinuk.dto.LoginDTO;
+import com.exmple.dinuk.dto.RefreshTokenDTO;
 import com.exmple.dinuk.entity.User;
 import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.UserRepo;
@@ -40,6 +41,8 @@ public class LoginServiceImpl implements LoginService {
                 loginDTO.setPassword(null);
                 Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, new ArrayList<>());
                 String token = jwtTokenProvider.generateToken(authentication);
+                String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUsername());
+                loginDTO.setRefreshToken(refreshToken);
                 loginDTO.setToken(token);
             }
             else{
@@ -61,5 +64,20 @@ public class LoginServiceImpl implements LoginService {
                 throw new CustomExceptions.UserDoesNotExistException("User does not exist");
             }
 
+    }
+
+
+    public LoginDTO refreshToken(String refreshTokenHeader, RefreshTokenDTO refreshTokenDTO) {
+        String refreshToken = refreshTokenHeader.replace("Bearer ", "");
+
+        if (jwtTokenProvider.validateToken(refreshToken)) {
+            String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
+            String newAccessToken = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>()));
+            //new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>()) is used to create a new authentication object using username ,password and array list in here only need username for generate access token
+            String newRefreshToken = jwtTokenProvider.generateRefreshToken(username);
+            return new LoginDTO(username, null, "Token refreshed successfully", newAccessToken, newRefreshToken);
+        } else {
+            throw new CustomExceptions.InvalidJwtTokenException("Invalid refresh token", null);
+        }
     }
 }

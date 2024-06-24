@@ -1,6 +1,7 @@
 package com.exmple.dinuk.controller;
 
 import com.exmple.dinuk.dto.LoginDTO;
+import com.exmple.dinuk.dto.RefreshTokenDTO;
 import com.exmple.dinuk.service.LoginService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +22,11 @@ public class LoginController {
     @GetMapping(value = "/getemail/{username}")
     public String getEmail(@PathVariable String username){
         return loginService.getEmail(username);
+    }
+
+    @PostMapping(value = "/refresh-token")
+    public LoginDTO refreshToken(@RequestHeader("Authorization") String refreshTokenHeader, @Valid @RequestBody RefreshTokenDTO refreshTokenDTO){
+
+        return loginService.refreshToken(refreshTokenHeader,refreshTokenDTO);
     }
 }
