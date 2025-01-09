@@ -5,6 +5,7 @@ import com.exmple.dinuk.dto.RefreshTokenDTO;
 import com.exmple.dinuk.service.LoginService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,5 +29,10 @@ public class LoginController {
     public LoginDTO refreshToken(@RequestHeader("Authorization") String refreshTokenHeader, @Valid @RequestBody RefreshTokenDTO refreshTokenDTO){
 
         return loginService.refreshToken(refreshTokenHeader,refreshTokenDTO);
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Application is healthy");
     }
 }

@@ -3,6 +3,7 @@ package com.exmple.dinuk.config;
 import com.exmple.dinuk.security.JwtAuthenticationEntryPoint;
 import com.exmple.dinuk.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,10 +11,29 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
+
+import static org.springframework.http.CacheControl.maxAge;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
+
+    @Value("${app.cors.allowed-local-origins}")
+    private String localOrigins;
+
+    @Value("${app.cors.allowed-remote-origins}")
+    private String remoteOrigins;
+
+    @Value("${app.cors.allowed-remote-origins2}")
+    private String remoteOrigins2;
+
 
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -21,10 +41,27 @@ public class WebSecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    // CORS Configuration
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(Arrays.asList("https://www.bloggingbets.me", "https://dinukfrontend2.vercel.app"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", corsConfiguration);
+        return source;
+    }
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()//Cross-Site Request Forgery use wehn the testimg in postman f
+                .cors()
+                .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
@@ -39,6 +76,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/v1/user/forgotPassword").permitAll()
                         .requestMatchers("/api/v1/user/resetPassword").permitAll()
                         .requestMatchers("/web-socket/**").permitAll()
+                        .requestMatchers("/api/v1/user/health").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
