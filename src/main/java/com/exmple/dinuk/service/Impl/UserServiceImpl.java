@@ -6,6 +6,7 @@ import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.UserRepo;
 import com.exmple.dinuk.service.UserService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,6 +21,7 @@ import java.util.Random;
 
 @Service
 @Transactional
+@Slf4j
 public class UserServiceImpl implements UserService {
     @Autowired // injected the repository into service because to depenceny injection
     private UserRepo userRepo;
@@ -37,9 +39,11 @@ public class UserServiceImpl implements UserService {
         User user = modelMapper.map(userDTO, User.class);
 
         if (CheckUserExist(userDTO.getUsername(),userDTO.getEmail())){
+            log.error("Username or email already exists");
             throw new CustomExceptions.UserExistsException("Username or email already exists");
         }
         else if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
+            log.error("Password and confirm password do not match");
             throw new CustomExceptions.PasswordMismatchException("Password and confirm password do not match");
         }
         else {
@@ -54,7 +58,7 @@ public class UserServiceImpl implements UserService {
             UserDTO emailResponse=sendEmail(userDTO.getEmail(),otp);
             userDTO.setMessage2(emailResponse.getMessage2());
         }
-
+        log.info("User saved successfully: {}", userDTO.getUsername());
         return userDTO;
     }
 
@@ -70,9 +74,10 @@ public class UserServiceImpl implements UserService {
 
             javaMailSender.send(message);
             userDTO.setMessage2("Verification OTP send Successfully to" +" "+ email);
-
+            log.info("Email sent successfully to: {}", email);
         }
         catch (Exception e){
+            log.error("Error sending email: {}", e.getMessage());
             throw new CustomExceptions.EmailNotSentException("Email not sent");
         }
         return userDTO;
@@ -83,6 +88,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findByEmail(emailVerifyDTO.getEmail());
         if(user != null){
             if(user.isVerified()){
+                log.error("Email already verified");
                 throw new CustomExceptions.UserNotVerifiedException("Email already verified");
             }
             else if(user.getOtp()==emailVerifyDTO.getOtp()){
@@ -91,10 +97,12 @@ public class UserServiceImpl implements UserService {
                 emailVerifyDTO.setOtp(0);
             }
             else{
+                log.error("Invalid OTP");
                 throw new CustomExceptions.InvalidOTPException("Invalid OTP");
             }
         }
         else{
+            log.error("Email does not exist");
             throw new CustomExceptions.UserDoesNotExistException("Email does not exist");
         }
         return emailVerifyDTO;

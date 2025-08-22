@@ -77,6 +77,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/api/v1/user/resetPassword").permitAll()
                         .requestMatchers("/web-socket/**").permitAll()
                         .requestMatchers("/api/v1/user/health").permitAll()
+                        .requestMatchers("/api/v1/user/generate-errors").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

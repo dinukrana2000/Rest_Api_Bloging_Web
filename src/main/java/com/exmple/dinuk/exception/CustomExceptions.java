@@ -48,4 +48,10 @@ public class CustomExceptions {
             super(message, cause);
         }
     }
+
+    public static class NoPostsFoundException extends RuntimeException {
+        public NoPostsFoundException(String message) {
+            super(message);
+        }
+    }
 }

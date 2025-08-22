@@ -7,6 +7,7 @@ import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.UserRepo;
 import com.exmple.dinuk.service.FogotPasswordService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@Slf4j
 public class FogotPasswordImpl implements FogotPasswordService {
     @Autowired
     private UserRepo userRepo;
@@ -33,6 +35,7 @@ public class FogotPasswordImpl implements FogotPasswordService {
     public FogotPasswordDTO forgotPassword(FogotPasswordDTO fogotPasswordDTO) {
         User user=userRepo.findByEmail(fogotPasswordDTO.getEmail());
         if (user==null){
+            log.error("User with email {} does not exist", fogotPasswordDTO.getEmail());
             throw new CustomExceptions.UserDoesNotExistException("User does not exist");
         }
         else {
@@ -44,6 +47,7 @@ public class FogotPasswordImpl implements FogotPasswordService {
             sendMail(user.getEmail(),url);
             fogotPasswordDTO.setMessage("Password reset link has been sent to your email");
         }
+        log.info("Password reset link sent to email: {}", fogotPasswordDTO.getEmail());
         return fogotPasswordDTO;
     }
     public FogotPasswordDTO sendMail(String to, String url) {
@@ -57,6 +61,7 @@ public class FogotPasswordImpl implements FogotPasswordService {
             javaMailSender.send(message);
 
         } catch (Exception e) {
+            log.error("Error sending email to {}: {}", to, e.getMessage());
             throw new CustomExceptions.EmailNotSentException("Error sending email");
 
         }
@@ -66,13 +71,17 @@ public class FogotPasswordImpl implements FogotPasswordService {
     public ResetPasswordDTO resetPassword(ResetPasswordDTO resetPasswordDTO) {
         User user = userRepo.findByEmail(resetPasswordDTO.getEmail());
         if (user == null) {
+            log.error("User with email {} does not exist", resetPasswordDTO.getEmail());
             throw new CustomExceptions.UserDoesNotExistException("User does not exist");
         } else if (user.getResetPasswordToken() == null ) {
+            log.error("Reset password token is invalid for user with email {}", resetPasswordDTO.getEmail());
             throw new RuntimeException("Token is invalid");
         } else if (user.getResetPasswordExpiry().isBefore(LocalDateTime.now())) {
+            log.error("Reset password token has expired for user with email {}", resetPasswordDTO.getEmail());
             throw new RuntimeException("Token has expired");
         } else {
             if (!resetPasswordDTO.getPwd().equals(resetPasswordDTO.getConfirm_pwd())) {
+                log.error("Password and confirm password do not match for user with email {}", resetPasswordDTO.getEmail());
                 throw new CustomExceptions.PasswordMismatchException("Password and confirm password do not match");
             } else {
                 String newPassword = passwordEncoder.encode(resetPasswordDTO.getPwd());
@@ -87,6 +96,7 @@ public class FogotPasswordImpl implements FogotPasswordService {
                 user.setResetPasswordExpiry(null);
             }
         }
+        log.info("Password reset successfully for user with email: {}", resetPasswordDTO.getEmail());
         return resetPasswordDTO;
     }
 

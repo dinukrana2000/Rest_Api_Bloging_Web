@@ -7,6 +7,7 @@ import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.UserRepo;
 import com.exmple.dinuk.service.LoginService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 
 @Service
 @Transactional
+@Slf4j
 public class LoginServiceImpl implements LoginService {
     @Autowired // injected the repository into service because to depenceny injection
     private UserRepo userRepo;
@@ -35,6 +37,7 @@ public class LoginServiceImpl implements LoginService {
             User user = userRepo.findByUsername2(loginDTO.getUsername());
             if(user != null && passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())){
                 if(!user.isVerified()){
+                    log.error("User is not verified: {}", loginDTO.getUsername());
                     throw new CustomExceptions.UserNotVerifiedException("User is not verified Please verify email first");
                 }
                 loginDTO.setMessage("Login successful");
@@ -46,10 +49,12 @@ public class LoginServiceImpl implements LoginService {
                 loginDTO.setToken(token);
             }
             else{
+                log.error("Invalid password for user: {}", loginDTO.getUsername());
                 throw new CustomExceptions.InvalidPasswordException("Invalid password");
             }
         }
         else{
+            log.error("User does not exist: {}", loginDTO.getUsername());
             throw new CustomExceptions.UserDoesNotExistException("User does not exist");
         }
         return loginDTO;
@@ -61,6 +66,7 @@ public class LoginServiceImpl implements LoginService {
                 return user.getEmail();
             }
             else{
+                log.error("User does not exist: {}", username);
                 throw new CustomExceptions.UserDoesNotExistException("User does not exist");
             }
 
@@ -75,8 +81,10 @@ public class LoginServiceImpl implements LoginService {
             String newAccessToken = jwtTokenProvider.generateToken(new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>()));
             //new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>()) is used to create a new authentication object using username ,password and array list in here only need username for generate access token
             String newRefreshToken = jwtTokenProvider.generateRefreshToken(username);
+            log.info("Token refreshed successfully for user: {}", username);
             return new LoginDTO(username, null, "Token refreshed successfully", newAccessToken, newRefreshToken);
         } else {
+            log.error("Invalid refresh token: {}", refreshToken);
             throw new CustomExceptions.InvalidJwtTokenException("Invalid refresh token", null);
         }
     }

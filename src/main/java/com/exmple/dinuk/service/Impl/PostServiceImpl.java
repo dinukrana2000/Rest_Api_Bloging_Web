@@ -6,6 +6,7 @@ import com.exmple.dinuk.exception.CustomExceptions;
 import com.exmple.dinuk.repo.PostRepo;
 import com.exmple.dinuk.service.PostService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.time.ZoneId;
 
 @Service
 @Transactional
+@Slf4j
 public class PostServiceImpl implements PostService {
     @Autowired
     private ModelMapper modelMapper;
@@ -35,6 +37,7 @@ public class PostServiceImpl implements PostService {
 
     public PostDTO createPost(PostDTO postDTO) {
         if (!userService.UserExist(postDTO.getUsername())) {
+            log.error("User does not exist: {}", postDTO.getUsername());
             throw new CustomExceptions.UserDoesNotExistException("User does not exist");
         }
         else{
@@ -42,7 +45,10 @@ public class PostServiceImpl implements PostService {
             postRepo.save(post);
             postDTO.setDate(ZonedDateTime.now(ZoneId.of("Asia/Colombo")));
             postDTO.setMessage("Post created successfully");
-            notificationService.notifyNewPost("New Post Created by " + postDTO.getUsername()+" " + "Author by" +" "+ postDTO.getAuthor()+" "+"At"+" "+ postDTO.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            notificationService.notifyNewPost("New Post Created by " + postDTO.getUsername()+" " + "Author by" +" "+
+                    postDTO.getAuthor()+" "+"At"+" "+ postDTO.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+            log.info("Post created successfully: {}", postDTO.getTitle());
             return postDTO;
 
         }
@@ -52,12 +58,18 @@ public class PostServiceImpl implements PostService {
         List<Post> postList = postRepo.findAllBy();
         List<PostDTO> postDTOList = new ArrayList<>();
 
+        if (postList.isEmpty()) {
+            log.error("No posts found");
+            throw new CustomExceptions.NoPostsFoundException("No posts found");
+        }
+
         for (Post post : postList) {
             PostDTO postDTO = modelMapper.map(post, PostDTO.class);
             ZonedDateTime zdt = post.getDate().toInstant().atZone(ZoneId.of("Asia/Colombo"));
             postDTO.setDate(zdt);
             postDTOList.add(postDTO);
         }
+        log.info("Retrieved {} posts", postDTOList.size());
 
         return postDTOList;
     }
@@ -77,6 +89,7 @@ public class PostServiceImpl implements PostService {
 
     public PostDTO updatePost(int id, String username, PostDTO PostDTO) {
         if (!userService.UserExist(username)||!PostExist(id)) {
+            log.error("User or Post does not exist: User - {}, Post ID - {}", username, id);
             throw new CustomExceptions.UserDoesNotExistException("User or Post does not exist");
 
         }
@@ -92,6 +105,7 @@ public class PostServiceImpl implements PostService {
 
     public PostDTO deletePost(int id) {
         if (!PostExist(id)) {
+            log.error("Post does not exist: ID - {}", id);
             throw new CustomExceptions.UserDoesNotExistException("Post does not exist");
         }
         else {
@@ -105,6 +119,7 @@ public class PostServiceImpl implements PostService {
 
     public PostDTO getPostById(int id, String username) {
         if (!PostExist(id)) {
+            log.error("Post does not exist: ID - {}", id);
             throw new CustomExceptions.UserDoesNotExistException("Post does not exist");
         }
         else {
