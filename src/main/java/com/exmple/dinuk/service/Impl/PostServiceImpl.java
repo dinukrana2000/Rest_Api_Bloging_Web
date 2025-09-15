@@ -58,17 +58,25 @@ public class PostServiceImpl implements PostService {
         List<Post> postList = postRepo.findAllBy();
         List<PostDTO> postDTOList = new ArrayList<>();
 
-        if (postList.isEmpty()) {
-            log.error("No posts found");
-            throw new CustomExceptions.NoPostsFoundException("No posts found");
-        }
+//        if (postList.isEmpty()) {
+//            log.error("No posts found");
+//            throw new CustomExceptions.NoPostsFoundException("No posts found");
+//        }
 
         for (Post post : postList) {
-            PostDTO postDTO = modelMapper.map(post, PostDTO.class);
-            ZonedDateTime zdt = post.getDate().toInstant().atZone(ZoneId.of("Asia/Colombo"));
-            postDTO.setDate(zdt);
-            postDTOList.add(postDTO);
+            try {
+                post = null;
+                PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+                ZonedDateTime zdt = post.getDate().toInstant().atZone(ZoneId.of("Asia/Colombo"));
+                postDTO.setDate(zdt);
+                postDTOList.add(postDTO);
+            }catch (Exception e){
+                log.error("execption occure",e);
+                throw e;
+            }
         }
+
+
         log.info("Retrieved {} posts", postDTOList.size());
 
         return postDTOList;
