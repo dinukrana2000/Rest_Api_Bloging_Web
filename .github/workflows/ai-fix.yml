@@ -1,0 +1,46 @@
+name: AI Auto Fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      jiraKey:
+        description: "Jira issue key"
+        required: true
+      summary:
+        description: "Issue summary"
+        required: true
+      description:
+        description: "Issue description"
+        required: true
+
+jobs:
+  ai-fix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate AI Fix Suggestion
+        run: |
+          echo "Jira Key: ${{ github.event.inputs.jiraKey }}" > AI_FIX.md
+          echo "Summary: ${{ github.event.inputs.summary }}" >> AI_FIX.md
+          echo "Description: ${{ github.event.inputs.description }}" >> AI_FIX.md
+
+      - name: Commit AI Fix
+        run: |
+          BRANCH="ai-fix-${{ github.event.inputs.jiraKey }}"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git checkout -b "$BRANCH"
+          git add AI_FIX.md
+          git commit -m "AI fix suggestion for ${{ github.event.inputs.jiraKey }}"
+          git push origin "$BRANCH"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ai-fix-${{ github.event.inputs.jiraKey }}
+          title: "AI Fix for ${{ github.event.inputs.jiraKey }}"
+          body: "This PR contains an AI-suggested fix."
