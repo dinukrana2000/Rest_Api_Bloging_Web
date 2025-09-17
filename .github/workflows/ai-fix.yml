@@ -37,16 +37,19 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          FILE_CONTENT=$(<PostServiceImpl.txt)
+          FILE_CONTENT=$(jq -Rs '.' PostServiceImpl.txt)
 
-          PROMPT="Jira Issue: ${{ github.event.inputs.jiraKey }}
+          PROMPT=$(cat <<EOF
+          Jira Issue: ${{ github.event.inputs.jiraKey }}
           Summary: ${{ github.event.inputs.summary }}
           Description: ${{ github.event.inputs.description }}
 
           Here is the full code of the affected file (PostServiceImpl.java):
           $FILE_CONTENT
 
-          Suggest a git diff patch to fix the issue. Return only valid unified diff format, no explanations."
+          Suggest a git diff patch to fix the issue. Return only valid unified diff format, no explanations.
+          EOF
+          )
 
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Content-Type: application/json" \
