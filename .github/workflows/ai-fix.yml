@@ -26,27 +26,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq curl
 
-      - name: Extract affected files from stack trace
+      - name: Fetch Java class from public repo
         run: |
-          # Example: extract Java class paths from stack trace
-          STACK_TRACE="${{ github.event.inputs.description }}"
-          # Convert package.class to file path
-          echo "$STACK_TRACE" | grep -oP '([a-zA-Z0-9_]+\.)+[A-Z][a-zA-Z0-9_]+(?=\.java|$)' | \
-          sed 's/\./\//g' | sed 's/$/.java/' > affected_classes.txt
-
-          echo "Affected files detected:"
-          cat affected_classes.txt || echo "No files found, will include manually"
-
-      - name: Prepare files content for AI
-        run: |
-          FILES_CONTENT=""
-          for f in $(cat affected_classes.txt); do
-            if [ -f "$f" ]; then
-              FILES_CONTENT="$FILES_CONTENT\n\n$f:\n$(cat $f)"
-            fi
-          done
-          # Save for next step
-          echo -e "$FILES_CONTENT" > files_for_ai.txt
+          RAW_URL="https://raw.githubusercontent.com/dinukrana2000/Rest_Api_Bloging_Web/develop_AI_Testing/src/main/java/com/exmple/dinuk/service/Impl/PostServiceImpl.java"
+          curl -s $RAW_URL -o PostServiceImpl.java
+          echo "Fetched PostServiceImpl.java:"
+          head -n 20 PostServiceImpl.java
 
       - name: Call OpenAI to generate patch
         env:
@@ -56,8 +41,9 @@ jobs:
           Summary: ${{ github.event.inputs.summary }}
           Description: ${{ github.event.inputs.description }}
 
-          Here is the code of affected files:
-          $(cat files_for_ai.txt)
+          Here is the code of the affected file:
+
+          $(cat PostServiceImpl.java)
 
           Suggest a git diff patch to fix the issue. Return only valid unified diff format, no explanations."
 
@@ -67,7 +53,7 @@ jobs:
             -d '{
               "model": "gpt-4o-mini",
               "messages": [
-                {"role": "system", "content": "You are an expert developer. Return only a valid unified git diff patch."},
+                {"role": "system", "content": "You are an expert Java developer. Return only a valid unified git diff patch."},
                 {"role": "user", "content": "'"$PROMPT"'"}
               ]
             }')
