@@ -37,30 +37,22 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          FILE_CONTENT=$(jq -Rs '.' PostServiceImpl.txt)
-
-          PROMPT=$(cat <<EOF
-          Jira Issue: ${{ github.event.inputs.jiraKey }}
+          PROMPT=Jira Issue: ${{ github.event.inputs.jiraKey }}
           Summary: ${{ github.event.inputs.summary }}
           Description: ${{ github.event.inputs.description }}
 
           Here is the full code of the affected file (PostServiceImpl.java):
-          $FILE_CONTENT
+          $(<PostServiceImpl.txt)
 
           Suggest a git diff patch to fix the issue. Return only valid unified diff format, no explanations.
-          EOF
-          )
+
+          JSON_BODY=$(jq -n --arg role "user" --arg content "$PROMPT" \
+           '{model:"gpt-4o-mini", messages:[{role:"system", content:"You are an expert Java developer. Return only a valid unified git diff patch."}, {role:$role, content:$content}]}')
 
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -d '{
-              "model": "gpt-4o-mini",
-              "messages": [
-                {"role": "system", "content": "You are an expert Java developer. Return only a valid unified git diff patch."},
-                {"role": "user", "content": "'"$PROMPT"'"}
-              ]
-            }')
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer $OPENAI_API_KEY" \
+          -d "$JSON_BODY")
 
           echo "$RESPONSE" | jq -r '.choices[0].message.content' > AI_PATCH.diff
           echo "AI Patch generated:"
