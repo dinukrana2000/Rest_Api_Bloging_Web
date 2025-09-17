@@ -76,6 +76,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ai-fix-${{ github.event.inputs.jiraKey }}
           title: "AI Fix for ${{ github.event.inputs.jiraKey }}"
+          base: develop_AI_Testing
           body: |
             This PR contains an AI-suggested fix.
 
