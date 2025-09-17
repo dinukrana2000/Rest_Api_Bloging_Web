@@ -1,3 +1,4 @@
+
 name: AI Auto Fix
 
 on:
@@ -29,7 +30,7 @@ jobs:
       - name: Fetch Java class from public repo
         run: |
           RAW_URL="https://raw.githubusercontent.com/dinukrana2000/Rest_Api_Bloging_Web/develop_AI_Testing/src/main/java/com/exmple/dinuk/service/Impl/PostServiceImpl.java"
-          curl -s $RAW_URL -o PostServiceImpl.java
+          curl -s $RAW_URL -o PostServiceImpl.txt
           echo "Saved PostServiceImpl.java to PostServiceImpl.txt"
 
       - name: Call OpenAI to generate patch
