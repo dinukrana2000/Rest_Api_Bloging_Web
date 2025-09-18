@@ -1,3 +1,4 @@
+
 name: AI Auto Fix
 
 on:
@@ -51,7 +52,12 @@ jobs:
           )
 
           JSON_BODY=$(jq -n --arg role "user" --arg content "$PROMPT" \
-           '{model:"gpt-4o-mini", messages:[{role:"system", content:"You are an expert Java developer. Always return only a valid raw unified git diff patch. The diff must start with 'diff --git'. Do not wrap output in triple backticks or explanations. If a line should be removed, use '-' only. If a line should be added, use '+' only. Do not comment out lines as a 'fix'. Ensure the hunk headers (@@ -X,Y +X,Y @@) correctly match the file context."}, {role:$role, content:$content}]}')
+          '{model:"gpt-4o-mini",
+           messages:[
+           {role:"system", content:"You are an expert Java developer. Always return only a valid raw unified git diff patch. The diff must start with \"diff --git\". Do not wrap output in triple backticks or explanations. If a line should be removed, use \"-\" only. If a line should be added, use \"+\" only. Do not comment out lines as a fix. Ensure the hunk headers (@@ -X,Y +X,Y @@) correctly match the file context."},
+          {role:$role, content:$content}
+           ]}')
+
 
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Content-Type: application/json" \
