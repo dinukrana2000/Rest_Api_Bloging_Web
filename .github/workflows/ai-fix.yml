@@ -51,7 +51,7 @@ jobs:
 
           # Build JSON body for OpenAI API
           JSON_BODY=$(jq -n --arg role "user" --arg content "$PROMPT" \
-           '{model:"gpt-4o-mini", messages:[{role:"system", content:"You are an expert Java developer. Return only a valid unified git diff patch."}, {role:$role, content:$content}]}')
+           '{model:"gpt-4o-mini", messages:[{role:"system", content:"You are an expert Java developer. Return only a valid raw unified git diff patch starting with 'diff --git'. Do not wrap with triple backticks or explanations."}, {role:$role, content:$content}]}')
 
           # Call OpenAI API
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
